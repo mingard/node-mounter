@@ -1,0 +1,6 @@
+{
+	"defaultMountDir" : "~",
+	"defaultRemoteDir" : "/",
+	"defaultPemDir" : "~",
+	"defaultUsername" : "ubuntu"
+}
