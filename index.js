@@ -9,7 +9,6 @@ var args = [
 	{ name: 'defaultRemoteDir', alias: 'R', type: String },
 	{ name: 'defaultUsername', alias: 'U', type: String },
 	{ name: 'defaultPemDir', alias: 'P', type: String },
-	{ name: 'setGlobalConfig', alias: 'C', type: String },
 	{ name: 'getGlobalConfig', alias: 'c', type: Boolean },
 	{ name: 'mountDir', alias: 'm', type: String },
 	{ name: 'mountName', alias: 'n', type: String },
@@ -39,21 +38,24 @@ var checkRequired = function(name, options) {
 	args.forEach(function(arg) {
 		if (arg.name === name) {
 			var required = arg.required;
-			required.map(function(required) {
-				if (options[required]) {
-					return required;
-				} else {
-					pass = false;
-					console.error(required, "is required. for help type -h");
-				}
-			})
+
+			if (required) {
+				required.map(function(required) {
+					if (options[required]) {
+						return required;
+					} else {
+						pass = false;
+						console.error(required, "is required. for help type -h");
+					}
+				})
+			}
 		}
 	});
 	return pass;
 }
 
 var getGlobalConfig = function(callback) {
-	fs.readFile('config.json', 'utf8', function(err, src) {
+	fs.readFile('config.json', 'utf8', (err, src) => {
 		if (err) console.error(err);
 		else {
 			try {
@@ -68,12 +70,15 @@ var getGlobalConfig = function(callback) {
 }
 
 var setGlobalConfig = function(options) {
-	if (!checkRequired('add', options)) return;
-	// var config = {
-	// 	mountName: options.name,
-	// 	host: options.host
-	// };
-	// createConfig(options);
+	if (!checkRequired('setGlobal', options)) return;
+	var configOptions = {
+		defaultMountDir : options.defaultMountDir || config.defaultMountDir,
+		defaultRemoteDir : options.defaultRemoteDir || config.defaultRemoteDir,
+		defaultPemDir: options.defaultPemDir || config.defaultPemDir,
+		defaultUsername: options.defaultUsername || config.defaultUsername
+
+	};
+	createConfig(configOptions, true);
 }
 
 var add = function(options) {
@@ -91,11 +96,12 @@ var add = function(options) {
 }
 
 var createConfig = function(config, isGlobal) {
-	if (isGlobal) {
-		console.log("Global config", config);
-	} else {
-		console.log("Project config", config);
-	}
+	var filename = (isGlobal ? "config" : "config/" + config.mountName) + ".json";
+	console.log(filename)
+	fs.writeFile(filename, JSON.stringify(config, null, 4), 'utf-8', (err) => {
+	  	if (err) throw err;
+	  	console.log(isGlobal ? 'Global' : 'Project',  'config saved');
+	});
 }
 
 
