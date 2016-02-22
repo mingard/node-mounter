@@ -26,6 +26,7 @@
   "homepage": "https://github.com/mingard/node-mounter#readme",
   "dependencies": {
     "command-line-args": "^2.1.6",
-    "fs": "0.0.2"
+    "fs": "0.0.2",
+    "shelljs": "^0.6.0"
   }
 }

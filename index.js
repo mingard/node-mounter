@@ -1,8 +1,11 @@
 var commandLineArgs = require('command-line-args');
+var shelljs = require('shelljs/global');
 var fs = require('fs');
 var config;
 
 var args = [
+	{ name: 'mount', alias: 'I', type: Boolean, required: ['mountName'] },
+	{ name: 'connect', alias: 'C', type: Boolean, required: ['mountName'] },
 	{ name: 'setGlobal', alias: 'g', type: Boolean, optional: ['defaultMountDir', 'defaultRemoteDir', 'defaultUsername', 'defaultPemDir'] },
 	{ name: 'add', alias: 'a', type: Boolean, required: ['mountName', 'host', 'pemFile'], optional: ['mountDir', 'remoteDir', 'username', 'pemDir'] },
 	{ name: 'defaultMountDir', alias: 'M', type: String },
@@ -22,15 +25,18 @@ var args = [
 var cli = commandLineArgs(args);
 
 var init = function() {
-	getGlobalConfig(optionsSwitch);
+	getConfig(optionsSwitch);
 }
 
-var optionsSwitch = function() {
+var optionsSwitch = function(configResult) {
+	config = configResult;
 	var options = cli.parse();
 	if (options.getGlobalConfig) {console.log(config); };
 	if (options.help) { help(); }
 	if (options.add) { add(options); }
 	if (options.setGlobal) { setGlobalConfig(options); }
+	if (options.mount) { mount(options); }
+	if (options.connect) { connect(options); }
 }
 
 var checkRequired = function(name, options) {
@@ -54,13 +60,13 @@ var checkRequired = function(name, options) {
 	return pass;
 }
 
-var getGlobalConfig = function(callback) {
-	fs.readFile('config.json', 'utf8', (err, src) => {
+var getConfig = function(callback, mountName) {
+	var filename = (!mountName ? "config" : "config/" + mountName) + ".json";
+	fs.readFile(filename, 'utf8', (err, src) => {
 		if (err) console.error(err);
 		else {
 			try {
-				config = JSON.parse(src);
-				callback(config);
+				callback(JSON.parse(src));
 			} catch(e) {
 				console.error(e);
 				callback();
@@ -88,7 +94,7 @@ var add = function(options) {
 		host: options.host,
 		mountDir : options.mountDir || config.defaultMountDir,
 		remoteDir : options.remoteDir || config.defaultRemoteDir,
-		pemDir: options.pemDir || config.defaultPemDir,
+		pemDir: (options.pemDir || config.defaultPemDir) + options.pemFile,
 		username: options.username || config.defaultUsername
 
 	};
@@ -96,19 +102,49 @@ var add = function(options) {
 }
 
 var createConfig = function(config, isGlobal) {
+	if (!isGlobal ) {
+		try {
+			var stats = fs.lstatSync('./config');
+			if (!stats.isDirectory()) {
+				fs.mkdirSync('./config');
+			}
+		}
+		catch (e) {
+		    fs.mkdirSync('./config');
+		}
+	}
 	var filename = (isGlobal ? "config" : "config/" + config.mountName) + ".json";
-	console.log(filename)
 	fs.writeFile(filename, JSON.stringify(config, null, 4), 'utf-8', (err) => {
 	  	if (err) throw err;
 	  	console.log(isGlobal ? 'Global' : 'Project',  'config saved');
 	});
 }
 
+var mount = function(options) {
+	if (!checkRequired('mount', options)) return;
+	getConfig(function(conf) {
+		var command = ['sshfs -o reconnect ', conf.username,  "@", conf.host , ':', conf.remoteDir, ' ', conf.mountDir, '/', conf.mountName,  ' -oauto_cache,reconnect,defer_permissions,negative_vncache,noappledouble,volname="', conf.mountName, '"' ].join("");
+		execCommand(command);
+	}, options.mountName)
+}
+
+var connect = function(options) {
+	if (!checkRequired('connect', options)) return;
+	getConfig(function(conf) {
+		var command = ['ssh -tt ', conf.username,  "@", conf.host].join("");
+		execCommand(command);
+	}, options.mountName)
+}
+
+var execCommand = function(command) {
+	console.log(command)
+	if (exec(command).code !== 0) {
+		
+	}
+}
 
 var help = function() {
-	args.forEach(function(arg) {
-		console.log("For", arg.name, "(-" + arg.alias, ") followed by", arg.type === Boolean ? "an optional Boolean" : "a String", "value" )
-	})
+	console.log(cli.getUsage());
 }
 
 exports.init = init();
