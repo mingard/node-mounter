@@ -61,7 +61,7 @@ var checkRequired = function(name, options) {
 }
 
 var getConfig = function(callback, mountName) {
-	var filename = (!mountName ? "config" : "config/" + mountName) + ".json";
+	var filename = __dirname + "/" + (!mountName ? "config" : "config/" + mountName) + ".json";
 	fs.readFile(filename, 'utf8', (err, src) => {
 		if (err) console.error(err);
 		else {
@@ -113,7 +113,7 @@ var createConfig = function(config, isGlobal) {
 		    fs.mkdirSync('./config');
 		}
 	}
-	var filename = (isGlobal ? "config" : "config/" + config.mountName) + ".json";
+	var filename =  __dirname + "/" + (isGlobal ? "config" : "config/" + config.mountName) + ".json";
 	fs.writeFile(filename, JSON.stringify(config, null, 4), 'utf-8', (err) => {
 	  	if (err) throw err;
 	  	console.log(isGlobal ? 'Global' : 'Project',  'config saved');
