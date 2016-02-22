@@ -1,0 +1,29 @@
+{
+  "name": "mounter",
+  "version": "1.0.0",
+  "description": "Mount an AWS instance locally",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mingard/node-mounter.git"
+  },
+  "keywords": [
+    "Mount",
+    "SSHFS",
+    "SSH",
+    "AWS",
+    "Instance"
+  ],
+  "author": "Arthur Mingard",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mingard/node-mounter/issues"
+  },
+  "homepage": "https://github.com/mingard/node-mounter#readme",
+  "dependencies": {
+    "command-line-args": "^2.1.6"
+  }
+}
