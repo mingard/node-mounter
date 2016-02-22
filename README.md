@@ -4,7 +4,10 @@ Mount a remote instance locally
 ##Example
 
 ###Create
-`node index.js -a -n 'my site' -H site.com -f site.pem`
+`node mounter -a -n sitename -H site.com -f site.pem`
 
 ###Connect
-`node index.js -c 'my site'`
+`node mounter -C 'my sitename`
+
+###Mount
+`node mounter -I -n sitename`
