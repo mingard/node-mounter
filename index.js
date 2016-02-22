@@ -78,12 +78,26 @@ var setGlobalConfig = function(options) {
 
 var add = function(options) {
 	if (!checkRequired('add', options)) return;
-	// var config = {
-	// 	mountName: options.name,
-	// 	host: options.host
-	// };
-	// createConfig(options);
+	var configOptions = {
+		mountName: options.mountName,
+		host: options.host,
+		mountDir : options.mountDir || config.defaultMountDir,
+		remoteDir : options.remoteDir || config.defaultRemoteDir,
+		pemDir: options.pemDir || config.defaultPemDir,
+		username: options.username || config.defaultUsername
+
+	};
+	createConfig(configOptions);
 }
+
+var createConfig = function(config, isGlobal) {
+	if (isGlobal) {
+		console.log("Global config", config);
+	} else {
+		console.log("Project config", config);
+	}
+}
+
 
 var help = function() {
 	args.forEach(function(arg) {
