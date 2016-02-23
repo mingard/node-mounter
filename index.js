@@ -144,7 +144,7 @@ var connect = function(options) {
 	if (!checkRequired('connect', options)) return;
 	getConfig(function(conf) {
 		addPem(conf);
-		var command = ['ssh -T ', conf.username,  "@", conf.host, ' EOM'].join("");
+		var command = ['ssh -tt ', conf.username,  "@", conf.host].join("");
 		execCommand(command);
 	}, options.connect)
 }
