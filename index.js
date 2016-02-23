@@ -1,11 +1,13 @@
+#!/usr/bin/env node
 var commandLineArgs = require('command-line-args');
 var shelljs = require('shelljs/global');
 var fs = require('fs');
 var config;
 
 var args = [
-	{ name: 'mount', alias: 'I', type: Boolean, required: ['mountName'] },
-	{ name: 'connect', alias: 'C', type: Boolean, required: ['mountName'] },
+	{ name: 'mount', alias: 'I', type: String },
+	{ name: 'connect', alias: 'C', type: String },
+	{ name: 'unmount', alias: 'u', type: String },
 	{ name: 'setGlobal', alias: 'g', type: Boolean, optional: ['defaultMountDir', 'defaultRemoteDir', 'defaultUsername', 'defaultPemDir'] },
 	{ name: 'add', alias: 'a', type: Boolean, required: ['mountName', 'host', 'pemFile'], optional: ['mountDir', 'remoteDir', 'username', 'pemDir'] },
 	{ name: 'defaultMountDir', alias: 'M', type: String },
@@ -37,6 +39,7 @@ var optionsSwitch = function(configResult) {
 	if (options.setGlobal) { setGlobalConfig(options); }
 	if (options.mount) { mount(options); }
 	if (options.connect) { connect(options); }
+	if (options.unmount) { unmount(options); }
 }
 
 var checkRequired = function(name, options) {
@@ -120,12 +123,20 @@ var createConfig = function(config, isGlobal) {
 	});
 }
 
+var unmount = function(options) {
+	if (!checkRequired('unmount', options)) return;
+	getConfig(function(conf) {
+		var command = ['diskutil unmount ', conf.mountDir, '/', conf.mountName ].join("");
+		execCommand(command);
+	}, options.unmount)
+}
+
 var mount = function(options) {
 	if (!checkRequired('mount', options)) return;
 	getConfig(function(conf) {
 		var command = ['sshfs -o reconnect ', conf.username,  "@", conf.host , ':', conf.remoteDir, ' ', conf.mountDir, '/', conf.mountName,  ' -oauto_cache,reconnect,defer_permissions,negative_vncache,noappledouble,volname="', conf.mountName, '"' ].join("");
 		execCommand(command);
-	}, options.mountName)
+	}, options.mount)
 }
 
 var connect = function(options) {
@@ -133,7 +144,7 @@ var connect = function(options) {
 	getConfig(function(conf) {
 		var command = ['ssh -tt ', conf.username,  "@", conf.host].join("");
 		execCommand(command);
-	}, options.mountName)
+	}, options.connect)
 }
 
 var execCommand = function(command) {
