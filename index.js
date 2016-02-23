@@ -134,6 +134,7 @@ var unmount = function(options) {
 var mount = function(options) {
 	if (!checkRequired('mount', options)) return;
 	getConfig(function(conf) {
+		addPem(conf);
 		var command = ['sshfs -o reconnect ', conf.username,  "@", conf.host , ':', conf.remoteDir, ' ', conf.mountDir, '/', conf.mountName,  ' -oauto_cache,reconnect,defer_permissions,negative_vncache,noappledouble,volname="', conf.mountName, '"' ].join("");
 		execCommand(command);
 	}, options.mount)
@@ -142,15 +143,21 @@ var mount = function(options) {
 var connect = function(options) {
 	if (!checkRequired('connect', options)) return;
 	getConfig(function(conf) {
-		var command = ['ssh -tt ', conf.username,  "@", conf.host].join("");
+		addPem(conf);
+		var command = ['ssh -T ', conf.username,  "@", conf.host, ' EOM'].join("");
 		execCommand(command);
 	}, options.connect)
 }
 
+var addPem = function(conf) {
+	var command = ['ssh-add ', conf.pemDir ].join("");
+	execCommand(command);
+}
+
 var execCommand = function(command) {
-	console.log(command)
+	console.log('executing', command);
 	if (exec(command).code !== 0) {
-		
+	} else {
 	}
 }
 
