@@ -1,8 +1,8 @@
-# node-mounter
+# sshfsmount
 Mount a remote instance locally
 
 ###Install
-`[sudo] npm install mounter -g`
+`[sudo] npm install sshfsmount -g`
 
 ###Help
 ```
