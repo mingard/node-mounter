@@ -6,8 +6,9 @@ Mount a remote instance locally
 
 ###Help
 ```
-  -I, --mount
-  -C, --connect
+  -I, --mount string
+  -C, --connect string
+  -u, --unmount string
   -g, --setGlobal
   -a, --add
   -M, --defaultMountDir string
